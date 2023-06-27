@@ -6,7 +6,7 @@ import supervision as sv
 import time
 
 CHECKPOINT_PATH = os.path.join( "weights", "sam_vit_h_4b8939.pth")
-DEVICE = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+DEVICE = torch.device('cpu')
 print(torch.cuda.is_available())
 MODEL_TYPE = "vit_h"
 sam = sam_model_registry[MODEL_TYPE](checkpoint=CHECKPOINT_PATH).to(device=DEVICE)
@@ -23,7 +23,7 @@ if not os.path.exists(OUTPUT_FOLDER):
 # Loop over all image files in folder
 with open(TIME_FILE, "w") as f:
     for filename in os.listdir(IMAGE_FOLDER):
-        if filename.endswith(".png"):
+        if filename.endswith(".jpg"):
             # Load image
             start_time = time.time()
             IMAGE_PATH = os.path.join(IMAGE_FOLDER, filename)
@@ -32,10 +32,11 @@ with open(TIME_FILE, "w") as f:
 
             # Generate segmentation mask and time it
             sam_result = mask_generator.generate(image_rgb)
+            print(sam_result)
             end_time = time.time()
             elapsed_time_ms = (end_time - start_time) * 1000
-            print(sam_result[0].keys())
-            print(elapsed_time_ms)
+            # print(sam_result[0].keys())
+            # print(elapsed_time_ms)
             # Annotate image with mask
             mask_annotator = sv.MaskAnnotator()
             detections = sv.Detections.from_sam(sam_result=sam_result)
